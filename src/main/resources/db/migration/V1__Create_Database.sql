@@ -1,0 +1,4 @@
+-- Create database if not exists (PostgreSQL)
+-- This file is for reference only, database should be created manually
+-- CREATE DATABASE employeedb;
+-- GRANT ALL PRIVILEGES ON DATABASE employeedb TO postgres;

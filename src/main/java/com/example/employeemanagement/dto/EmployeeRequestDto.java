@@ -1,6 +1,9 @@
 package com.example.employeemanagement.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -11,6 +14,9 @@ import java.time.LocalDate;
 /**
  * DTO for Employee requests
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class EmployeeRequestDto {
     
     @NotBlank(message = "Employee code is required")
@@ -42,94 +48,4 @@ public class EmployeeRequestDto {
     
     @NotNull(message = "Branch ID is required")
     private Long branchId;
-    
-    // Constructors
-    public EmployeeRequestDto() {}
-    
-    public EmployeeRequestDto(String employeeCode, String firstName, String lastName, 
-                             String email, String phoneNumber, LocalDate hireDate, 
-                             String position, String address, Long branchId) {
-        this.employeeCode = employeeCode;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.hireDate = hireDate;
-        this.position = position;
-        this.address = address;
-        this.branchId = branchId;
-    }
-    
-    // Getters and Setters
-    public String getEmployeeCode() {
-        return employeeCode;
-    }
-    
-    public void setEmployeeCode(String employeeCode) {
-        this.employeeCode = employeeCode;
-    }
-    
-    public String getFirstName() {
-        return firstName;
-    }
-    
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-    
-    public String getLastName() {
-        return lastName;
-    }
-    
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-    
-    public String getEmail() {
-        return email;
-    }
-    
-    public void setEmail(String email) {
-        this.email = email;
-    }
-    
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-    
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-    
-    public LocalDate getHireDate() {
-        return hireDate;
-    }
-    
-    public void setHireDate(LocalDate hireDate) {
-        this.hireDate = hireDate;
-    }
-    
-    public String getPosition() {
-        return position;
-    }
-    
-    public void setPosition(String position) {
-        this.position = position;
-    }
-    
-    public String getAddress() {
-        return address;
-    }
-    
-    public void setAddress(String address) {
-        this.address = address;
-    }
-    
-    public Long getBranchId() {
-        return branchId;
-    }
-    
-    public void setBranchId(Long branchId) {
-        this.branchId = branchId;
-    }
 }

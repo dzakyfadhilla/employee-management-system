@@ -1,5 +1,10 @@
 package com.example.employeemanagement.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -11,6 +16,10 @@ import java.util.List;
  */
 @Entity
 @Table(name = "branches")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString(exclude = "employees") // Exclude employees to avoid circular reference
 public class Branch {
     
     @Id
@@ -42,9 +51,7 @@ public class Branch {
     @OneToMany(mappedBy = "branch", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Employee> employees;
     
-    // Constructors
-    public Branch() {}
-    
+    // Custom constructor for creating branch without employees list
     public Branch(String code, String name, String address, String phoneNumber) {
         this.code = code;
         this.name = name;
@@ -64,81 +71,11 @@ public class Branch {
         updatedAt = LocalDateTime.now();
     }
     
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-    
-    public void setId(Long id) {
-        this.id = id;
-    }
-    
-    public String getCode() {
-        return code;
-    }
-    
-    public void setCode(String code) {
-        this.code = code;
-    }
-    
-    public String getName() {
-        return name;
-    }
-    
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    public String getAddress() {
-        return address;
-    }
-    
-    public void setAddress(String address) {
-        this.address = address;
-    }
-    
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-    
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-    
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-    
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-    
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-    
-    public List<Employee> getEmployees() {
-        return employees;
-    }
-    
-    public void setEmployees(List<Employee> employees) {
-        this.employees = employees;
-    }
-    
-    @Override
-    public String toString() {
-        return "Branch{" +
-                "id=" + id +
-                ", code='" + code + '\'' +
-                ", name='" + name + '\'' +
-                ", address='" + address + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
+    /**
+     * Get the count of employees in this branch
+     * @return number of employees
+     */
+    public int getEmployeeCount() {
+        return employees != null ? employees.size() : 0;
     }
 }

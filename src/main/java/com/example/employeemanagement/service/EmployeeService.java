@@ -1,5 +1,6 @@
 package com.example.employeemanagement.service;
 
+import com.example.employeemanagement.dto.EmployeeEventDto;
 import com.example.employeemanagement.dto.EmployeeRequestDto;
 import com.example.employeemanagement.dto.EmployeeResponseDto;
 import com.example.employeemanagement.entity.Branch;
@@ -31,6 +32,9 @@ public class EmployeeService {
     
     @Autowired
     private BranchRepository branchRepository;
+    
+    @Autowired
+    private KafkaProducerService kafkaProducerService;
     
     /**
      * Get all employees
@@ -121,6 +125,22 @@ public class EmployeeService {
         Employee savedEmployee = employeeRepository.save(employee);
         logger.info("Employee created successfully with id: {}", savedEmployee.getId());
         
+        // Publish employee creation event to Kafka
+        try {
+            EmployeeEventDto eventDto = new EmployeeEventDto(
+                "CREATE",
+                savedEmployee.getId(),
+                savedEmployee.getFirstName() + " " + savedEmployee.getLastName(),
+                savedEmployee.getEmail(),
+                savedEmployee.getPhoneNumber(),
+                savedEmployee.getBranch().getId(),
+                savedEmployee.getBranch().getName()
+            );
+            kafkaProducerService.publishEmployeeEvent(eventDto);
+        } catch (Exception e) {
+            logger.warn("Failed to publish employee creation event for employee id: {}", savedEmployee.getId(), e);
+        }
+        
         return convertToResponseDto(savedEmployee);
     }
     
@@ -170,6 +190,22 @@ public class EmployeeService {
         Employee updatedEmployee = employeeRepository.save(existingEmployee);
         logger.info("Employee updated successfully with id: {}", updatedEmployee.getId());
         
+        // Publish employee update event to Kafka
+        try {
+            EmployeeEventDto eventDto = new EmployeeEventDto(
+                "UPDATE",
+                updatedEmployee.getId(),
+                updatedEmployee.getFirstName() + " " + updatedEmployee.getLastName(),
+                updatedEmployee.getEmail(),
+                updatedEmployee.getPhoneNumber(),
+                updatedEmployee.getBranch().getId(),
+                updatedEmployee.getBranch().getName()
+            );
+            kafkaProducerService.publishEmployeeEvent(eventDto);
+        } catch (Exception e) {
+            logger.warn("Failed to publish employee update event for employee id: {}", updatedEmployee.getId(), e);
+        }
+        
         return convertToResponseDto(updatedEmployee);
     }
     
@@ -183,8 +219,26 @@ public class EmployeeService {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + id));
         
+        // Store employee data for Kafka event before deletion
+        EmployeeEventDto eventDto = new EmployeeEventDto(
+            "DELETE",
+            employee.getId(),
+            employee.getFirstName() + " " + employee.getLastName(),
+            employee.getEmail(),
+            employee.getPhoneNumber(),
+            employee.getBranch().getId(),
+            employee.getBranch().getName()
+        );
+        
         employeeRepository.delete(employee);
         logger.info("Employee deleted successfully with id: {}", id);
+        
+        // Publish employee deletion event to Kafka
+        try {
+            kafkaProducerService.publishEmployeeEvent(eventDto);
+        } catch (Exception e) {
+            logger.warn("Failed to publish employee deletion event for employee id: {}", id, e);
+        }
     }
     
     /**

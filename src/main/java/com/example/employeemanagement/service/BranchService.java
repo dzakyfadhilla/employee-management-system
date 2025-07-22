@@ -1,5 +1,6 @@
 package com.example.employeemanagement.service;
 
+import com.example.employeemanagement.dto.BranchEventDto;
 import com.example.employeemanagement.dto.BranchRequestDto;
 import com.example.employeemanagement.dto.BranchResponseDto;
 import com.example.employeemanagement.entity.Branch;
@@ -26,6 +27,9 @@ public class BranchService {
     
     @Autowired
     private BranchRepository branchRepository;
+    
+    @Autowired
+    private KafkaProducerService kafkaProducerService;
     
     /**
      * Get all branches
@@ -83,6 +87,20 @@ public class BranchService {
         Branch savedBranch = branchRepository.save(branch);
         logger.info("Branch created successfully with id: {}", savedBranch.getId());
         
+        // Publish branch creation event to Kafka
+        try {
+            BranchEventDto eventDto = new BranchEventDto(
+                "CREATE",
+                savedBranch.getId(),
+                savedBranch.getName(),
+                savedBranch.getAddress(),
+                savedBranch.getPhoneNumber()
+            );
+            kafkaProducerService.publishBranchEvent(eventDto);
+        } catch (Exception e) {
+            logger.warn("Failed to publish branch creation event for branch id: {}", savedBranch.getId(), e);
+        }
+        
         return convertToResponseDto(savedBranch);
     }
     
@@ -113,6 +131,20 @@ public class BranchService {
         Branch updatedBranch = branchRepository.save(existingBranch);
         logger.info("Branch updated successfully with id: {}", updatedBranch.getId());
         
+        // Publish branch update event to Kafka
+        try {
+            BranchEventDto eventDto = new BranchEventDto(
+                "UPDATE",
+                updatedBranch.getId(),
+                updatedBranch.getName(),
+                updatedBranch.getAddress(),
+                updatedBranch.getPhoneNumber()
+            );
+            kafkaProducerService.publishBranchEvent(eventDto);
+        } catch (Exception e) {
+            logger.warn("Failed to publish branch update event for branch id: {}", updatedBranch.getId(), e);
+        }
+        
         return convertToResponseDto(updatedBranch);
     }
     
@@ -132,8 +164,24 @@ public class BranchService {
             throw new DataConflictException("Cannot delete branch with " + employeeCount + " employees. Please reassign employees first.");
         }
         
+        // Store branch data for Kafka event before deletion
+        BranchEventDto eventDto = new BranchEventDto(
+            "DELETE",
+            branch.getId(),
+            branch.getName(),
+            branch.getAddress(),
+            branch.getPhoneNumber()
+        );
+        
         branchRepository.delete(branch);
         logger.info("Branch deleted successfully with id: {}", id);
+        
+        // Publish branch deletion event to Kafka
+        try {
+            kafkaProducerService.publishBranchEvent(eventDto);
+        } catch (Exception e) {
+            logger.warn("Failed to publish branch deletion event for branch id: {}", id, e);
+        }
     }
     
     /**

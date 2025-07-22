@@ -1,11 +1,18 @@
 package com.example.employeemanagement.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 /**
  * DTO for Branch requests
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class BranchRequestDto {
     
     @NotBlank(message = "Branch code is required")
@@ -21,47 +28,4 @@ public class BranchRequestDto {
     
     @Size(max = 20, message = "Phone number cannot exceed 20 characters")
     private String phoneNumber;
-    
-    // Constructors
-    public BranchRequestDto() {}
-    
-    public BranchRequestDto(String code, String name, String address, String phoneNumber) {
-        this.code = code;
-        this.name = name;
-        this.address = address;
-        this.phoneNumber = phoneNumber;
-    }
-    
-    // Getters and Setters
-    public String getCode() {
-        return code;
-    }
-    
-    public void setCode(String code) {
-        this.code = code;
-    }
-    
-    public String getName() {
-        return name;
-    }
-    
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    public String getAddress() {
-        return address;
-    }
-    
-    public void setAddress(String address) {
-        this.address = address;
-    }
-    
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-    
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
 }
